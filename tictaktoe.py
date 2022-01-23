@@ -95,10 +95,16 @@ class Pieces:
             player = None
             key = (0,0)
             for y in range(3):
+                
                 if direction == "down":
                     key = (x,y)
                 elif direction == "right":
-                    key = (y,x)
+                    key = (y,x)                  
+                elif direction == "diagLeft":
+                    key = (y,y)
+                elif direction == "diagRight":
+                    key = (y,2-y)
+                    
                 if not key in self.board:
                     ended = False
                     break
@@ -107,10 +113,14 @@ class Pieces:
                 elif not player == self.board[key]:
                     ended = False
                     break
+                
+            if not ended and "diag" in direction:
+                return False
             if ended:
-                print("won")
+                print("won", direction)
                 return ended
-        print("notone")
+            
+        print("not won")
         return False
         
     def addNew(self,x,y, cirlceTurn):
@@ -130,6 +140,8 @@ class Pieces:
             
         self.checkEndGame("right")
         self.checkEndGame("down")
+        self.checkEndGame("diagLeft")
+        self.checkEndGame("diagRight")
             
         return True
     
