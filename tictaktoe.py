@@ -87,6 +87,32 @@ class Pieces:
         self.pieces = []
         self.board = {}
         
+    def checkEndGame(self, direction):
+        ended = False
+        player = None
+        for x in range(3):
+            ended = True
+            player = None
+            key = (0,0)
+            for y in range(3):
+                if direction == "down":
+                    key = (x,y)
+                elif direction == "right":
+                    key = (y,x)
+                if not key in self.board:
+                    ended = False
+                    break
+                elif y == 0:
+                    player = self.board[key]
+                elif not player == self.board[key]:
+                    ended = False
+                    break
+            if ended:
+                print("won")
+                return ended
+        print("notone")
+        return False
+        
     def addNew(self,x,y, cirlceTurn):
         
         x = x//(width//3)
@@ -102,8 +128,11 @@ class Pieces:
         else:
             self.pieces.append(Cross(x,y))
             
-        return True
+        self.checkEndGame("right")
+        self.checkEndGame("down")
             
+        return True
+    
     def draw(self):
         
         for x in self.pieces:
