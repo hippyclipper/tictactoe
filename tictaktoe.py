@@ -86,6 +86,8 @@ class Pieces:
         
         self.pieces = []
         self.board = {}
+        self.direct = ""
+        self.end = (-1,-1)
         
     def checkEndGame(self, direction):
         ended = False
@@ -99,12 +101,12 @@ class Pieces:
                 if direction == "down":
                     key = (x,y)
                 elif direction == "right":
-                    key = (y,x)                  
+                    key = (y,x)                    
                 elif direction == "diagLeft":
-                    key = (y,y)
+                    key = (y,y)                    
                 elif direction == "diagRight":
                     key = (y,2-y)
-                    
+                                      
                 if not key in self.board:
                     ended = False
                     break
@@ -117,6 +119,8 @@ class Pieces:
             if not ended and "diag" in direction:
                 return False
             if ended:
+                self.direct = direction
+                self.end = (key[0], key[1])
                 print("won", direction)
                 return ended
             
@@ -146,9 +150,25 @@ class Pieces:
         return True
     
     def draw(self):
-        
+        first = None
+        last = None
         for x in self.pieces:
             x.draw()
+        if self.direct != "":
+            if self.direct == "right":
+                first = (0, self.end[1]*height//3+height//6)
+                last = (width, self.end[1]*height//3+height//6)
+            elif self.direct == "down":
+                first = (self.end[0]*width//3+width//6, 0)
+                last = (self.end[0]*width//3+width//6, height)
+            elif self.direct == "diagLeft":
+                first = (0,0)
+                last = (width, height)
+            else:
+                first = (width, 0)
+                last = (0, height)
+            pygame.draw.line(screen, BLUE, first, last, 20)
+            
         
 board = Board(width, height)
 pieces = Pieces()
