@@ -5,10 +5,15 @@ import pygame
 screenScale = 8
 width = int(100 * screenScale)
 height = width
+
 UP = -1
 DOWN = 1
-RED = (255,0,0)
-BLUE = (0,0,255)
+
+RED = (231, 29, 54)
+BLUE = (46, 196, 182)
+BLACK = (1,22,39)
+WHITE = (253, 255, 252)
+
 LEFT_MOUSE = 1
 RIGHT_MOUSE = 3
 done = False
@@ -16,11 +21,12 @@ done = False
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
-font = pygame.font.SysFont('arial', 25)
+font = pygame.font.SysFont('arial', 75)
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 
 class Board:
+    
     def __init__(self,w,h):
         
         self.inGame = False
@@ -30,8 +36,7 @@ class Board:
         self.textX = width//2-self.startW//2
         self.textY = height//2-self.startH//2
         self.textObj = font.render(self.text,True,RED)
-
-        
+       
         self.x = w//3
         self.y = h//3
         self.w = w
@@ -39,12 +44,12 @@ class Board:
         self.smallSide = 10
         
         self.rec1 = pygame.Rect(0,self.y, self.w, self.smallSide)
-        self.rec2 = pygame.Rect(0,self.y*2, self.w, self.smallSide)
-        
+        self.rec2 = pygame.Rect(0,self.y*2, self.w, self.smallSide)       
         self.rec3 = pygame.Rect(self.x, 0, self.smallSide, self.h)
         self.rec4 = pygame.Rect(self.x*2, 0, self.smallSide, self.h)
         
     def draw(self):
+        
         if not self.inGame:           
             screen.blit(self.textObj, self.textObj.get_rect(center = screen.get_rect().center))
         else:
@@ -68,6 +73,7 @@ class Piece:
         
         
 class Cross(Piece):
+    
     def __init__(self,x,y):
         
         super().__init__(x, y)
@@ -101,6 +107,7 @@ class Pieces:
         self.direct = ""
         self.end = (-1,-1)
         self.won = False
+        
     def clear(self):
         
         self.pieces = []
@@ -109,12 +116,16 @@ class Pieces:
         self.end = (-1,-1)
         
     def checkEndGame(self, direction):
+        
         ended = False
         player = None
+        
         for x in range(3):
+            
             ended = True
             player = None
             key = (0,0)
+            
             for y in range(3):
                 
                 if direction == "down":
@@ -137,14 +148,13 @@ class Pieces:
                 
             if not ended and "diag" in direction:
                 return False
+            
             if ended:
                 self.direct = direction
                 self.end = (key[0], key[1])
                 self.won = True
-                print("won", direction)
                 return ended
             
-        print("not won")
         return False
         
     def addNew(self,x,y, cirlceTurn):
@@ -173,9 +183,12 @@ class Pieces:
 
         first = None
         last = None
+        
         for x in self.pieces:
             x.draw()
+            
         if self.direct != "":
+            
             if self.direct == "right":
                 first = (0, self.end[1]*height//3+height//6)
                 last = (width, self.end[1]*height//3+height//6)
@@ -188,18 +201,22 @@ class Pieces:
             else:
                 first = (width, 0)
                 last = (0, height)
-            pygame.draw.line(screen, BLUE, first, last, 20)
+                
+            pygame.draw.line(screen, WHITE, first, last, 20)
             
         
 board = Board(width, height)
 pieces = Pieces()
+
 circleTurn = True
 nextClick = False
+
 while not done:
     
     pressed = pygame.key.get_pressed()
 
     for event in pygame.event.get():
+        
         if event.type == pygame.QUIT:
             done = True
         if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
@@ -222,15 +239,14 @@ while not done:
                 nextClick = False
                 board = Board(width, height)
                 pieces = Pieces()
-            if pieces.won:
+            if pieces.won or len(pieces.board) == 9:
                 nextClick = True
 
-            
+    board.draw()   
     pieces.draw()
-    board.draw()
     pygame.display.flip()
     clock.tick(60)
-    screen.fill((0, 0, 0))
+    screen.fill(BLACK)
 
 
 pygame.display.quit()
