@@ -16,11 +16,21 @@ done = False
 pygame.init()
 pygame.mixer.init()
 pygame.font.init()
+font = pygame.font.SysFont('arial', 25)
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 
 class Board:
     def __init__(self,w,h):
+        
+        self.inGame = False
+        self.text = "Start"
+        self.startW = 100
+        self.startH = 50
+        self.textX = width//2-self.startW//2
+        self.textY = height//2-self.startH//2
+        self.textObj = font.render(self.text,True,RED)
+
         
         self.x = w//3
         self.y = h//3
@@ -35,11 +45,13 @@ class Board:
         self.rec4 = pygame.Rect(self.x*2, 0, self.smallSide, self.h)
         
     def draw(self):
-        
-        pygame.draw.rect(screen, RED, self.rec1)
-        pygame.draw.rect(screen, RED, self.rec2)
-        pygame.draw.rect(screen, RED, self.rec3)
-        pygame.draw.rect(screen, RED, self.rec4)
+        if not self.inGame:           
+            screen.blit(self.textObj, self.textObj.get_rect(center = screen.get_rect().center))
+        else:
+            pygame.draw.rect(screen, RED, self.rec1)
+            pygame.draw.rect(screen, RED, self.rec2)
+            pygame.draw.rect(screen, RED, self.rec3)
+            pygame.draw.rect(screen, RED, self.rec4)
 
 
 class Piece:
@@ -88,6 +100,13 @@ class Pieces:
         self.board = {}
         self.direct = ""
         self.end = (-1,-1)
+        self.won = False
+    def clear(self):
+        
+        self.pieces = []
+        self.board = {}
+        self.direct = ""
+        self.end = (-1,-1)
         
     def checkEndGame(self, direction):
         ended = False
@@ -121,6 +140,7 @@ class Pieces:
             if ended:
                 self.direct = direction
                 self.end = (key[0], key[1])
+                self.won = True
                 print("won", direction)
                 return ended
             
@@ -150,6 +170,7 @@ class Pieces:
         return True
     
     def draw(self):
+
         first = None
         last = None
         for x in self.pieces:
@@ -173,6 +194,7 @@ class Pieces:
 board = Board(width, height)
 pieces = Pieces()
 circleTurn = True
+nextClick = False
 while not done:
     
     pressed = pygame.key.get_pressed()
@@ -190,9 +212,19 @@ while not done:
             x, y = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == LEFT_MOUSE:
             x, y = pygame.mouse.get_pos()
-            added = pieces.addNew(x,y, circleTurn)
-            if added:
-                circleTurn = not circleTurn
+            if board.inGame:
+                added = pieces.addNew(x,y, circleTurn)
+                if added:
+                    circleTurn = not circleTurn
+            elif board.textObj.get_rect(center = screen.get_rect().center).collidepoint((x,y)):
+                board.inGame = True
+            if nextClick:
+                nextClick = False
+                board = Board(width, height)
+                pieces = Pieces()
+            if pieces.won:
+                nextClick = True
+
             
     pieces.draw()
     board.draw()
